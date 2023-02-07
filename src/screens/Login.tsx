@@ -32,7 +32,7 @@ function Login({ onSelect }: Props) {
         focus:border-pink-600
         float-right"
       >
-        <option>--</option>
+        <option>👉</option>
         <option>Adam</option>
         <option>Edd</option>
         <option>Paul</option>
