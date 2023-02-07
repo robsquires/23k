@@ -1,4 +1,5 @@
 const endpoint = "https://allowing-man-96.hasura.app/v1/graphql";
+const token = new URLSearchParams(window.location.search).get("code") || "";
 
 export enum QUERY {
   INSERT_MEASUREMENTS = `
@@ -33,8 +34,7 @@ export async function request(query: QUERY, variables: object) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-hasura-admin-secret":
-        "55tr6VtelVjUwnsP4uoHAd3a44slHC3TCDzJ8AAbgDfGDkC6pksZAD58UUmjhHME",
+      "x-hasura-admin-secret": token,
     },
     body: JSON.stringify({ query, variables }),
   });
