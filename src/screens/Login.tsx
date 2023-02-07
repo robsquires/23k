@@ -14,7 +14,7 @@ function Login({ onSelect }: Props) {
     to-yellow-500
     background-animate"
       >
-        <div className="mb-3 italic">Athlete,</div>
+        <div className="mb-3 italic indent-2">Athlete,</div>
         <div>select yo'self</div>
       </div>
       <hr className="mt-10" />
