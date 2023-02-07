@@ -24,25 +24,19 @@ body {
   }
 }
 
-.slide-animate {
-  position: absolute;
-  top: 0;
-
-  height: 100%;
-  width: 100%;
+.animate-hover {
+  animation: MoveUpDown 1s linear infinite;
+  position: relative;
   left: 0;
-  animation: SlideOut 0.5s ease-in forwards;
+  bottom: 0;
 }
 
-@keyframes SlideOut {
-  from {
-    left: -100%;
+@keyframes MoveUpDown {
+  0%,
+  100% {
+    transform: translateY(0);
   }
-  to {
-    left: 0;
+  50% {
+    transform: translateY(-3px);
   }
-}
-
-.rob-shadow {
-  text-shadow: 1px 1px 2px rgb(56, 56, 56);
 }

@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import Container from "./screens/Container";
 import Login from "./screens/Login";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { Install } from "./screens/Install";
 
 const client = new QueryClient();
+const isIntalled = window.matchMedia("(display-mode: standalone)").matches;
 
 function App() {
   const [user, setUser] = useState(localStorage.getItem("user"));
@@ -14,7 +16,9 @@ function App() {
 
   return (
     <div className="w-screen h-screen">
-      {!user ? (
+      {!isIntalled ? (
+        <Install />
+      ) : !user ? (
         <Login onSelect={saveUser} />
       ) : (
         <QueryClientProvider client={client}>
