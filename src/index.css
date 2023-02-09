@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  touch-action: none;
+  /* touch-action: none; */
 }
 
 .background-animate {

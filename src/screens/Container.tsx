@@ -10,7 +10,7 @@ const weekLabel = "Fri 10th Feb";
 const week = "2023-02-10";
 function Container({ user }: Props) {
   return (
-    <div className="px-10 flex flex-col space-y-3">
+    <div className="px-10 flex flex-col space-y-2">
       <header aria-label="Page Header">
         <div className="mx-auto mt-2 max-w-screen-xl px-4 py-4 sm:py-12 sm:px-6 lg:px-8">
           <div className="sm:flex sm:items-center sm:justify-between">
@@ -36,7 +36,7 @@ function Container({ user }: Props) {
 
             <li className="flex items-center bg-white p-2">
               <span className="h-6 px-3 rounded-full text-center text-[12px] font-bold leading-6 text-white  bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 background-animate">
-                {weekLabel}
+                {` w/e ${weekLabel}`}
               </span>
             </li>
 
@@ -46,7 +46,7 @@ function Container({ user }: Props) {
           </ol>
         </div>
 
-        <div className="mt-8"></div>
+        <div className="mt-4"></div>
         <Form athlete={user} week={week} />
       </div>
     </div>

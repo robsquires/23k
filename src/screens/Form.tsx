@@ -106,7 +106,7 @@ function Form({ athlete, week }: Props) {
     currentMeasurements.find(byType(TYPE.WEIGHT))?.id;
 
   return (
-    <div className="flex flex-col space-y-12">
+    <div className="flex flex-col space-y-5">
       <form onSubmit={onFormSubmit} className="flex flex-col space-y-5">
         <Input
           placeholderText={Emoji.forType(TYPE.SWIM)}
