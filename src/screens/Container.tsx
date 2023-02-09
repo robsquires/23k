@@ -20,7 +20,7 @@ function Container({ user }: Props) {
               </h1>
 
               <p className="mt-1.5 text-sm text-gray-500">
-                Let's get your numbers 📲
+                Enter your weekly stats 📲
               </p>
             </div>
           </div>
