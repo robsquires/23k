@@ -146,7 +146,13 @@ function Form({ athlete, week }: Props) {
         />
         <hr />
         <div className="px-5">
-          <Button status={saveMeasurements.status} />
+          <Button
+            isSuccess={saveMeasurements.isSuccess}
+            isLoading={
+              saveMeasurements.isLoading || measurementsResult.isLoading
+            }
+            isError={saveMeasurements.isError || measurementsResult.isError}
+          />
         </div>
       </form>
 
