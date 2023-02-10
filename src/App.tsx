@@ -9,8 +9,9 @@ const isInstalled =
   location.search.includes("debug") ||
   window.matchMedia("(display-mode: standalone)").matches;
 
+const savedUser = localStorage.getItem("user");
 function App() {
-  const [user, setUser] = useState(localStorage.getItem("user"));
+  const [user, setUser] = useState(savedUser);
   const saveUser = (user: string) => {
     setUser(user);
     localStorage.setItem("user", user);
