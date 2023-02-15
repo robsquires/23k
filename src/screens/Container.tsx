@@ -6,8 +6,8 @@ type Props = {
   user: string;
 };
 
-const weekLabel = "Fri 10th Feb";
-const week = "2023-02-10";
+const weekLabel = "Fri 17th Feb";
+const week = "2023-02-17";
 function Container({ user }: Props) {
   return (
     <div className="px-10 flex flex-col space-y-2">
