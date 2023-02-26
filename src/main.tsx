@@ -5,6 +5,7 @@ import App from "./App";
 import Stats, { loader } from "./Stats";
 import Calories from "./components/stats/calories/Calories";
 import Runs from "./components/stats/runs/Runs";
+import Weight from "./components/stats/weight/Weight";
 import RunsAverage from "./components/stats/runs-average/RunsAverage";
 import "./index.css";
 
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: "runs-average",
         element: <RunsAverage />,
+      },
+      {
+        path: "weight",
+        element: <Weight />,
       },
     ],
   },
