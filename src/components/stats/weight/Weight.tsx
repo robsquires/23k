@@ -14,15 +14,15 @@ import { Labels } from "./Labels";
 import { WeightSummary } from "./WeightSummary";
 
 const backgroundColor = "#f97316";
-const colors: { [athlete: string]: string } = {
-  Adam: "#c2410c",
-  Paul: "#9a3412",
-  Rich: "#fdba74",
-  Rob: "#ffedd5",
-  Russ: "rgb(102 37 14)",
-  Scott: "#7c2d12",
-  TJ: "#fb923c",
-};
+const allColors = [
+  "rgb(102 37 14)",
+  "#7c2d12",
+  "#9a3412",
+  "#c2410c",
+  "#fb923c",
+  "#fdba74",
+  "#ffedd5",
+];
 type Measurement = {
   type: string;
   athlete: string;
@@ -41,7 +41,6 @@ type ChartData = {
 const accessors = {
   xAccessor: (d: ChartData) => d.x,
   yAccessor: (d: ChartData) => d.y,
-  colorAccessor: (athlete: string) => colors[athlete],
 };
 
 const defaultMargin = { top: 155, right: 190, bottom: 50, left: 40 };
@@ -87,6 +86,15 @@ export default function Weight({ margin = defaultMargin }: Props) {
       ? -1
       : 1
   );
+
+  const colors: { [athlete: string]: string } = sortedAthletes.reduce(
+    (acc, athlete, i) => ({
+      ...acc,
+      [athlete]: allColors[i],
+    }),
+    {}
+  );
+  const colorAccessor = (athlete: string) => colors[athlete];
 
   const colorScale = scaleOrdinal({
     domain: sortedAthletes,
@@ -156,6 +164,7 @@ export default function Weight({ margin = defaultMargin }: Props) {
                   style={{
                     strokeWidth: 6,
                   }}
+                  colorAccessor={colorAccessor}
                   {...accessors}
                 />
                 <Labels dataKey={athlete} colors={colors} />
