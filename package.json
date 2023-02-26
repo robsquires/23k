@@ -13,6 +13,11 @@
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.3",
+    "@visx/axis": "^3.0.1",
+    "@visx/group": "^3.0.0",
+    "@visx/scale": "^3.0.0",
+    "@visx/shape": "^3.0.0",
+    "@visx/text": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-query": "^3.39.3",

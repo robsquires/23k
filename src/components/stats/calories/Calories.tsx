@@ -1,4 +1,4 @@
-import { useOutletContext, useRouteLoaderData } from "react-router-dom";
+import { useOutletContext, useLoaderData } from "react-router-dom";
 import "./calories.css";
 
 function Sum(arr: number[]) {
@@ -37,7 +37,7 @@ export default function Calories(props: any) {
     height: number;
   }>();
 
-  const data = useRouteLoaderData("stats") as Data;
+  const data = useLoaderData() as Data;
 
   const athletes: {
     [key: string]: {
@@ -69,6 +69,7 @@ export default function Calories(props: any) {
       <div
         className="stats-title"
         style={{
+          height: "175px",
           color: "#16a34a",
         }}
       >
