@@ -1,0 +1,37 @@
+.stats-title {
+  font-size: 8rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin-left: 30px;
+}
+
+.athlete {
+  font-size: 1.5em;
+}
+
+table {
+  width: 100%;
+}
+th {
+  font-size: 1.2em;
+}
+td {
+  border: solid white 3px;
+  text-align: center;
+  font-size: 1.5em;
+}
+td.athlete {
+  width: 30px;
+  padding: 0 15px;
+}
+
+td.calories {
+  width: 150px;
+  padding: 0 15px;
+}
+
+.burgers {
+  margin-top: 20px;
+  text-align: justify;
+  line-height: normal;
+}

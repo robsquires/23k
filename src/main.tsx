@@ -2,8 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
-import Stats from "./Stats";
-import Calories from "./screens/stats/Calories";
+import Stats, { loader as statsLoader } from "./Stats";
+import Calories from "./components/stats/calories/Calories";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -13,7 +13,9 @@ const router = createBrowserRouter([
   },
   {
     path: "/stats",
+    id: "stats",
     element: <Stats />,
+    loader: statsLoader,
     children: [
       {
         path: "calories",

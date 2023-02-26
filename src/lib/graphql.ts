@@ -27,9 +27,20 @@ export enum QUERY {
       }
     }
   `,
+  ALL_CALORIES = `
+    query allCalories {
+      Measurement(where: {type: {_gt: ""}}, order_by: {week: asc}) {
+        athlete
+        id
+        type
+        value
+        week
+      }
+    }
+  `,
 }
 
-export async function request(query: QUERY, variables: object) {
+export async function request(query: QUERY, variables?: object) {
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {

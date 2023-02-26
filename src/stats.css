@@ -1,0 +1,11 @@
+.stats {
+  font-family: "Avenir";
+}
+@font-face {
+  font-family: Avenir;
+  src: url(https://drpbox.s3.eu-west-1.amazonaws.com/AvenirNext-Bold.ttf);
+}
+@font-face {
+  font-family: Emoji;
+  src: url(https://drpbox.s3.eu-west-1.amazonaws.com/emoji-subset.ttf);
+}
