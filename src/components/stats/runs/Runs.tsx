@@ -9,6 +9,7 @@ type Measurement = {
   type: string;
   athlete: string;
   value: number;
+  week: string;
 };
 type Data = {
   Measurement: Measurement[];
@@ -29,9 +30,9 @@ export default function Runs({ margin = defaultMargin }) {
 
   const { Measurement } = useRouteLoaderData("stats") as Data;
 
-  const data = Measurement.filter((d: any) => d.type === "RUN").sort((a, b) =>
-    a.athlete > b.athlete ? 1 : -1
-  );
+  const data = Measurement.filter(
+    (d: Measurement) => d.type === "RUN" && d.week === "2023-02-24"
+  ).sort((a, b) => (a.athlete > b.athlete ? 1 : -1));
 
   const topAthlete = [...data].sort((a, b) => (a.value < b.value ? 1 : -1))[0]
     .athlete;

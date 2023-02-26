@@ -2,9 +2,10 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
-import Stats, { loader, loaderCalories } from "./Stats";
+import Stats, { loader } from "./Stats";
 import Calories from "./components/stats/calories/Calories";
 import Runs from "./components/stats/runs/Runs";
+import RunsAverage from "./components/stats/runs-average/RunsAverage";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -20,12 +21,15 @@ const router = createBrowserRouter([
     children: [
       {
         path: "calories",
-        loader: loaderCalories,
         element: <Calories />,
       },
       {
         path: "runs",
         element: <Runs />,
+      },
+      {
+        path: "runs-average",
+        element: <RunsAverage />,
       },
     ],
   },

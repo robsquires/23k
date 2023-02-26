@@ -11,10 +11,6 @@ export default function Stats() {
   );
 }
 
-export async function loaderCalories() {
-  return await request(QUERY.ALL_CALORIES);
-}
-
 export async function loader() {
-  return await request(QUERY.ALL_MEASUREMENTS_FOR_WEEK, { week: "2023-02-24" });
+  return await request(QUERY.ALL_MEASUREMENTS);
 }

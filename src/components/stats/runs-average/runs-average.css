@@ -1,0 +1,52 @@
+.runs {
+  padding-right: 30px;
+}
+.runs table {
+  width: 100%;
+  height: calc(100vh - 210px);
+  border-collapse: separate;
+}
+.runs th {
+  font-size: 1.2em;
+}
+.runs td {
+  width: 25px;
+  padding: 15px;
+  border: solid white 3px;
+
+  text-align: center;
+  font-size: 1.5em;
+}
+
+.runs td.data.high {
+  background-color: #16a34a;
+  color: #bbf7d0;
+}
+.runs td.data.med {
+  background-color: #4ade80;
+  color: #fefce8;
+}
+.runs td.data.low {
+  background-color: #bbf7d0;
+  color: #16a34a;
+}
+.runs td.data.zero {
+  background-color: white;
+}
+
+.runs td.change {
+  font-size: 2em;
+}
+
+.runs td.change.positive {
+  background-color: white;
+  color: #16a34a;
+}
+
+.runs td.change.positive::before {
+  content: "+";
+}
+.runs td.change.negative {
+  background-color: white;
+  color: #dc2626;
+}

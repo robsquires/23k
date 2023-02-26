@@ -27,20 +27,9 @@ export enum QUERY {
       }
     }
   `,
-  ALL_MEASUREMENTS_FOR_WEEK = `
-    query measurementsForWeek($week: date) {
-      Measurement(where: {week: {_eq: $week }}, order_by: {week: asc}) {
-        athlete
-        id
-        type
-        value
-        week
-      }
-    }
-  `,
-  ALL_CALORIES = `
+  ALL_MEASUREMENTS = `
     query allCalories {
-      Measurement(where: {type: {_gt: ""}}, order_by: {week: asc}) {
+      Measurement(order_by: {week: asc}) {
         athlete
         id
         type
