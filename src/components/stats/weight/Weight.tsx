@@ -1,5 +1,9 @@
 import { Fragment } from "react";
-import { useOutletContext, useRouteLoaderData } from "react-router-dom";
+import {
+  useOutletContext,
+  useParams,
+  useRouteLoaderData,
+} from "react-router-dom";
 import { Axis, LineSeries, XYChart } from "@visx/xychart";
 import { LegendOrdinal } from "@visx/legend";
 import { scaleOrdinal, scaleLinear, scaleBand } from "@visx/scale";
@@ -55,12 +59,16 @@ export default function Weight({ margin = defaultMargin }: Props) {
   const xMax = width - margin.left - margin.right;
 
   const { Measurement } = useRouteLoaderData("stats") as Data;
+  const params = useParams();
 
   const athletes: {
     [athlete: string]: ChartData[];
   } = {};
 
-  Measurement.filter((d) => d.type === "WEIGHT").forEach((d) => {
+  Measurement.filter(
+    (d) =>
+      d.type === "WEIGHT" && new Date(d.week) <= new Date(params.week || "")
+  ).forEach((d) => {
     if (athletes[d.athlete] === undefined) {
       athletes[d.athlete] = [];
     }

@@ -3,7 +3,11 @@ import { Group } from "@visx/group";
 import { AxisLeft } from "@visx/axis";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { Text } from "@visx/text";
-import { useOutletContext, useRouteLoaderData } from "react-router-dom";
+import {
+  useOutletContext,
+  useParams,
+  useRouteLoaderData,
+} from "react-router-dom";
 
 type Measurement = {
   type: string;
@@ -29,9 +33,10 @@ export default function Runs({ margin = defaultMargin }) {
   }>();
 
   const { Measurement } = useRouteLoaderData("stats") as Data;
+  let params = useParams();
 
   const data = Measurement.filter(
-    (d: Measurement) => d.type === "RUN" && d.week === "2023-02-24"
+    (d: Measurement) => d.type === "RUN" && d.week === params.week
   ).sort((a, b) => (a.athlete > b.athlete ? 1 : -1));
 
   const topAthlete = [...data].sort((a, b) => (a.value < b.value ? 1 : -1))[0]

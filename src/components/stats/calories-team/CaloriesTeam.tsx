@@ -3,7 +3,11 @@ import { Group } from "@visx/group";
 import { AxisLeft } from "@visx/axis";
 import { scaleBand, scaleLinear } from "@visx/scale";
 import { Text } from "@visx/text";
-import { useOutletContext, useRouteLoaderData } from "react-router-dom";
+import {
+  useOutletContext,
+  useParams,
+  useRouteLoaderData,
+} from "react-router-dom";
 
 type Measurement = {
   type: string;
@@ -14,6 +18,18 @@ type Measurement = {
 type Data = {
   Measurement: Measurement[];
 };
+const teams: {
+  [teamName: string]: string;
+} = {
+  Rob: "Jobsy & Ivesy",
+  Paul: "Jobsy & Ivesy",
+  Adam: "Frosted Tips",
+  Rich: "Frosted Tips",
+  Russ: "Pace N' Power",
+  Scott: "Pace N' Power",
+  TJ: "Pace N' Power",
+};
+type TeamData = { team: string; value: number; athletes: any[] };
 
 const defaultMargin = { top: 20, right: 30, bottom: 0, left: 250 };
 const backgroundColor = "rgb(239, 62, 86)";
@@ -21,6 +37,10 @@ const bannerHeight = 175;
 // accessors
 const getTeam = (d: any) => d.team;
 const getValue = (d: any) => d.value;
+const highestFirst = (a: TeamData, b: TeamData) => (a.value < b.value ? 1 : -1);
+function Sum(arr: number[]) {
+  return arr.reduce((acc, value) => acc + value, 0);
+}
 
 export default function CaloriesTeam({ margin = defaultMargin }) {
   const { width, height } = useOutletContext<{
@@ -29,24 +49,14 @@ export default function CaloriesTeam({ margin = defaultMargin }) {
   }>();
 
   const { Measurement } = useRouteLoaderData("stats") as Data;
+  const params = useParams();
 
-  const teams: {
-    [teamName: string]: string;
-  } = {
-    Rob: "Jobsy & Ivesy",
-    Paul: "Jobsy & Ivesy",
-    Adam: "Frosted Tips",
-    Rich: "Frosted Tips",
-    Russ: "Pace N' Power",
-    Scott: "Pace N' Power",
-    TJ: "Pace N' Power",
-  };
-  //   const data = [];
   const teamData: {
-    [teamName: string]: { team: string; value: number; athletes: any[] };
+    [teamName: string]: TeamData;
   } = {};
+
   Measurement.filter(
-    (d: Measurement) => d.type === "CALORIES" && d.week === "2023-02-24"
+    (d: Measurement) => d.type === "CALORIES" && d.week === params.week
   ).forEach((d) => {
     const team = teams[d.athlete];
     if (!teamData[team]) {
@@ -58,13 +68,15 @@ export default function CaloriesTeam({ margin = defaultMargin }) {
     }
     teamData[team].athletes.push(d);
     teamData[team].value =
-      (teamData[team].value + d.value) / teamData[team].athletes.length;
+      Sum(teamData[team].athletes.map(({ value }) => value)) /
+      teamData[team].athletes.length;
   });
 
-  const data = Object.entries(teamData).map(([_key, data]) => data);
+  const data = Object.entries(teamData)
+    .map(([_key, data]) => data)
+    .sort(highestFirst);
 
-  const topTeam = [...data].sort((a, b) => (a.value < b.value ? 1 : -1))[0]
-    ?.team;
+  const topTeam = [...data].sort(highestFirst)[0]?.team;
 
   // bounds
   const xMax = width - margin.left - margin.right;

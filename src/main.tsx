@@ -16,7 +16,7 @@ const router = createBrowserRouter([
     element: <App />,
   },
   {
-    path: "/stats",
+    path: "/stats/:week/",
     id: "stats",
     element: <Stats />,
     loader,

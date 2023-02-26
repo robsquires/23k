@@ -1,5 +1,5 @@
 import uniq from "lodash.uniq";
-import { useRouteLoaderData } from "react-router-dom";
+import { useParams, useRouteLoaderData } from "react-router-dom";
 import { Table } from "./Table";
 
 function Sum(arr: number[]) {
@@ -33,8 +33,11 @@ export type Props = {
 
 const RunsAverage = () => {
   const data = useRouteLoaderData("stats") as Data;
+  const params = useParams();
 
-  const runData = data.Measurement.filter((d) => d.type === "RUN");
+  const runData = data.Measurement.filter(
+    (d) => d.type === "RUN" && new Date(d.week) <= new Date(params.week || "")
+  );
   const weeks = uniq(runData.map((d) => d.week)).sort((a, b) => {
     return new Date(a) < new Date(b) ? 1 : -1;
   });
@@ -90,7 +93,7 @@ const RunsAverage = () => {
           Header:
             k === "athlete" || k === "change"
               ? ""
-              : k === "2023-02-24"
+              : k === params.week
               ? "This week"
               : new Date(k).toLocaleDateString("en-gb", {
                   month: "short",

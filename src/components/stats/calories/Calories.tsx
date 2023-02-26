@@ -1,4 +1,8 @@
-import { useOutletContext, useRouteLoaderData } from "react-router-dom";
+import {
+  useOutletContext,
+  useParams,
+  useRouteLoaderData,
+} from "react-router-dom";
 import "./calories.css";
 
 function Sum(arr: number[]) {
@@ -6,7 +10,7 @@ function Sum(arr: number[]) {
 }
 
 function calcFontSize(x: number) {
-  return 6.983 - 0.742 * Math.log(1.84 * x - 203.7);
+  return x <= 30 ? 8 : 10.9111 - 1.192 * Math.log(3.5911 * x - 140.987);
 }
 
 function calcNumberBurgers(calories: number) {
@@ -38,6 +42,7 @@ export default function Calories(props: any) {
   }>();
 
   const data = useRouteLoaderData("stats") as Data;
+  const params = useParams();
 
   const athletes: {
     [key: string]: {
@@ -46,7 +51,10 @@ export default function Calories(props: any) {
     };
   } = {};
 
-  data.Measurement.filter((d: any) => d.type === "CALORIES").forEach((d) => {
+  data.Measurement.filter(
+    (d: any) =>
+      d.type === "CALORIES" && new Date(d.week) <= new Date(params.week || "")
+  ).forEach((d) => {
     if (athletes[d.athlete] === undefined) {
       athletes[d.athlete] = {
         calories: [],
