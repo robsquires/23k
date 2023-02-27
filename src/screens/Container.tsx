@@ -6,8 +6,8 @@ type Props = {
   user: string;
 };
 
-const weekLabel = "Fri 24th Feb";
-const week = "2023-02-24";
+const weekLabel = "Tue 28th Feb";
+const week = "2023-02-28";
 function Container({ user }: Props) {
   return (
     <div className="px-10 flex flex-col space-y-2">
@@ -36,7 +36,7 @@ function Container({ user }: Props) {
 
             <li className="flex items-center bg-white p-2">
               <span className="h-6 px-3 rounded-full text-center text-[12px] font-bold leading-6 text-white  bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 background-animate">
-                {` w/e ${weekLabel}`}
+                {`➡️ ${weekLabel}`}
               </span>
             </li>
 

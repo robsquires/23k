@@ -23,8 +23,6 @@ const athletes: {
   }[];
 } = {};
 
-const defaultMargin = { top: 0, right: 0, bottom: 50, left: 40 };
-
 export type Props = {
   width: number;
   height: number;
