@@ -1,19 +1,26 @@
-import React from "react";
 import { useTable } from "react-table";
 import "./runs-average.css";
 
-type WeekData = {
-  [week: string]: { actual: number; average: number };
+export type WeekData = {
+  actual: number;
+  average: number;
 };
-type TableData = Array<
-  WeekData & {
-    athlete: string;
-    change: string;
-  }
->;
+
+export type TableRow = {
+  athlete: string;
+  change: string;
+  // Need "| string" here since this fallback index type needs to
+  // be compatible with all other string indexes
+  // requires extra type check when reading/writing the 'week' indexes
+  [week: string]: WeekData | string;
+};
+
+function isWeekData(data: WeekData | string): data is WeekData {
+  return !(data instanceof String);
+}
 
 //@todo work out how to pass column type
-export function Table({ columns, data }: { columns: any; data: TableData }) {
+export function Table({ columns, data }: { columns: any; data: TableRow[] }) {
   // Use the state and functions returned from useTable to build your UI
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({
@@ -40,14 +47,15 @@ export function Table({ columns, data }: { columns: any; data: TableData }) {
             <tr {...row.getRowProps()}>
               {row.cells.map((cell) => {
                 const classes = [];
+                const data = cell.row.original[cell.column.id];
+                console.log(data, isWeekData(data));
                 if (cell.column.id === "change") {
                   classes.push("change");
                   classes.push(cell.value >= 0 ? "positive" : "negative");
                 } else if (cell.column.id !== "athlete") {
-                  const data = cell.row.original[cell.column.id];
                   classes.push("data");
                   classes.push(
-                    data.actual === 0
+                    isWeekData(data) && data.actual === 0
                       ? "zero"
                       : cell.value >= 23
                       ? "high"
@@ -56,7 +64,6 @@ export function Table({ columns, data }: { columns: any; data: TableData }) {
                       : "low"
                   );
                 }
-
                 return (
                   <td {...cell.getCellProps()} className={classes.join(" ")}>
                     {cell.render("Cell")}

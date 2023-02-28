@@ -1,6 +1,7 @@
 import { useSearchParams, useRouteLoaderData } from "react-router-dom";
 import { filterByDate } from "../../../lib/filters";
-import { Table } from "./Table";
+import { Table, TableRow, WeekData } from "./Table";
+import round from "lodash.round";
 
 function Sum(arr: number[]) {
   return arr.reduce((acc, value) => acc + value, 0);
@@ -70,7 +71,7 @@ const RunsAverage = () => {
       return d.athlete === athlete && thisWeek >= new Date(d.week);
     });
 
-    const average = Sum(vals.map((d) => d.value)) / numWeeks;
+    const average = round(Sum(vals.map((d) => d.value)) / numWeeks, 1);
 
     dataByAthlete[d.athlete].push({
       week: d.week,
@@ -79,23 +80,18 @@ const RunsAverage = () => {
     });
   });
 
-  const tableData: {
-    athlete: string;
-    change: string;
-  }[] = [];
-
+  const tableData: TableRow[] = [];
   Object.entries(dataByAthlete).forEach(([athlete, data]) => {
-    const weekData = data.reduce(
+    const weekData = data.reduce<{ [week: string]: WeekData }>(
       (acc, d) => ({
         ...acc,
-        [d.week]: { average: d.average.toFixed(1), actual: d.actual },
+        [d.week]: { average: d.average, actual: d.actual },
       }),
       {}
     );
     const sortedData = [...data].sort((a, b) => {
       return new Date(a.week) < new Date(b.week) ? 1 : -1;
     });
-    console.log(sortedData);
 
     const start = 0;
     const end = params.get("month") ? sortedData.length - 1 : 1;
