@@ -171,7 +171,7 @@ export default function Weight({ margin = defaultMargin }: Props) {
               </Fragment>
             );
           })}
-          <WeightSummary x={xMax + margin.right / 2} colors={colors} />
+          <WeightSummary x={xMax + margin.right - 20} colors={colors} />
         </XYChart>
       </svg>
       <LegendOrdinal

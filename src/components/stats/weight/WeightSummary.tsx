@@ -3,6 +3,7 @@ import { DataContext } from "@visx/xychart";
 import { useContext } from "react";
 import { Text } from "@visx/text";
 import { useAdjustedY } from "./use-adjusted-y";
+import round from "lodash.round";
 
 export const WeightSummary = ({ x, colors }: { x: number; colors: any }) => {
   const { xScale, yScale, dataRegistry } = useContext(DataContext);
@@ -18,10 +19,8 @@ export const WeightSummary = ({ x, colors }: { x: number; colors: any }) => {
         const entry = dataRegistry.get(dataKey);
         const first = entry.data[0];
         const last = entry.data[entry.data.length - 1];
-        const value = (entry.yAccessor(last) - entry.yAccessor(first)).toFixed(
-          1
-        );
-
+        const value = round(entry.yAccessor(last) - entry.yAccessor(first), 1);
+        const isNegative = value < 0;
         const y = lookupY(dataKey, entry.data.length - 1) || 0;
 
         return (
@@ -29,7 +28,7 @@ export const WeightSummary = ({ x, colors }: { x: number; colors: any }) => {
             key={dataKey}
             x={x}
             y={y}
-            textAnchor="start"
+            textAnchor="end"
             verticalAnchor="middle"
             fill={colors[dataKey]}
             style={{
@@ -37,7 +36,7 @@ export const WeightSummary = ({ x, colors }: { x: number; colors: any }) => {
               fontWeight: "600",
             }}
           >
-            {`${value} kg`}
+            {`${isNegative ? "-" : "+"}${Math.abs(value).toFixed(1)} kg`}
           </Text>
         );
       })}
