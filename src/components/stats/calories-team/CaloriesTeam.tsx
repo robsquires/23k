@@ -154,9 +154,10 @@ export default function CaloriesTeam({ margin = defaultMargin }) {
                   opacity={team === topTeam ? "1" : "0.6"}
                 />
                 <Text
-                  y={barY + barHeight / 1.6}
+                  y={barY + barHeight / 2}
                   x={15}
                   fill={backgroundColor}
+                  dominantBaseline="central"
                   style={{
                     fontFamily: "Avenir",
                     fontSize: "3.5rem",
