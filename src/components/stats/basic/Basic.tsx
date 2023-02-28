@@ -162,6 +162,14 @@ export default function Basic({ margin = defaultMargin }) {
             const barHeight = yScale.bandwidth();
             const barWidth = xMax - (xScale(value) ?? 0);
             const barY = yScale(athlete) || 0;
+            const valueStr =
+              exerciseType === ExerciseType.SWIM
+                ? `${new Intl.NumberFormat("en-GB", {
+                    maximumFractionDigits: 0,
+                  }).format(value)} m`
+                : `${value.toFixed(1)} km`;
+            // magic number based on fixed font size below
+            const showExternal = barWidth < valueStr.length * 24;
             return (
               <Group key={athlete}>
                 <BarRounded
@@ -177,22 +185,18 @@ export default function Basic({ margin = defaultMargin }) {
                 />
                 <Text
                   y={barY + barHeight / 2}
-                  x={10}
+                  x={10 + (showExternal ? barWidth : 0)}
                   height={barHeight}
-                  fill={backgroundColor}
+                  fill={showExternal ? "white" : backgroundColor}
                   dominantBaseline="central"
                   style={{
-                    fontSize: "2.5em",
+                    fontSize: "40px",
                     fontWeight: "800",
                     letterSpacing: "-0.05em",
                     backgroundColor: "red",
                   }}
                 >
-                  {exerciseType === ExerciseType.SWIM
-                    ? `${new Intl.NumberFormat("en-GB", {
-                        maximumFractionDigits: 0,
-                      }).format(value)} m`
-                    : `${value.toFixed(1)} km`}
+                  {valueStr}
                 </Text>
               </Group>
             );
