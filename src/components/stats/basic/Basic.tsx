@@ -104,7 +104,7 @@ export default function Basic({ margin = defaultMargin }) {
 
   const data = Object.entries(athletes)
     .map(([_athlete, data]) => data)
-    .sort((a, b) => (a.athlete > b.athlete ? 1 : -1));
+    .sort((a, b) => (a.value < b.value ? 1 : -1));
 
   const topAthlete = [...data].sort((a, b) => (a.value < b.value ? 1 : -1))[0]
     .athlete;
