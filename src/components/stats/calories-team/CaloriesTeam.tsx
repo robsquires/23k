@@ -5,9 +5,11 @@ import { scaleBand, scaleLinear } from "@visx/scale";
 import { Text } from "@visx/text";
 import {
   useOutletContext,
-  useParams,
+  useSearchParams,
   useRouteLoaderData,
 } from "react-router-dom";
+import { filterByDate } from "../../../lib/filters";
+import uniq from "lodash.uniq";
 
 type Measurement = {
   type: string;
@@ -29,7 +31,12 @@ const teams: {
   Scott: "Pace N' Power",
   TJ: "Pace N' Power",
 };
-type TeamData = { team: string; value: number; athletes: any[] };
+type TeamData = {
+  team: string;
+  value: number;
+  athletes: Set<string>;
+  sum: number;
+};
 
 const defaultMargin = { top: 20, right: 30, bottom: 0, left: 250 };
 const backgroundColor = "rgb(239, 62, 86)";
@@ -49,27 +56,28 @@ export default function CaloriesTeam({ margin = defaultMargin }) {
   }>();
 
   const { Measurement } = useRouteLoaderData("stats") as Data;
-  const params = useParams();
+  const [params] = useSearchParams();
 
   const teamData: {
     [teamName: string]: TeamData;
   } = {};
 
   Measurement.filter(
-    (d: Measurement) => d.type === "CALORIES" && d.week === params.week
+    (d: Measurement) => d.type === "CALORIES" && filterByDate(params, d.week)
   ).forEach((d) => {
     const team = teams[d.athlete];
     if (!teamData[team]) {
       teamData[team] = {
         team,
-        athletes: [],
+        athletes: new Set(),
+        sum: 0,
         value: 0,
       };
     }
-    teamData[team].athletes.push(d);
+    teamData[team].sum += d.value;
+    teamData[team].athletes.add(d.athlete);
     teamData[team].value =
-      Sum(teamData[team].athletes.map(({ value }) => value)) /
-      teamData[team].athletes.length;
+      teamData[team].sum / [...teamData[team].athletes.values()].length;
   });
 
   const data = Object.entries(teamData)

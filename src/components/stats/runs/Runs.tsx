@@ -5,9 +5,10 @@ import { scaleBand, scaleLinear } from "@visx/scale";
 import { Text } from "@visx/text";
 import {
   useOutletContext,
-  useParams,
+  useSearchParams,
   useRouteLoaderData,
 } from "react-router-dom";
+import { filterByDate } from "../../../lib/filters";
 
 type Measurement = {
   type: string;
@@ -19,12 +20,17 @@ type Data = {
   Measurement: Measurement[];
 };
 
+type SummarisedMeasurement = {
+  athlete: string;
+  value: number;
+};
+
 const defaultMargin = { top: 20, right: 20, bottom: 0, left: 120 };
 const backgroundColor = "rgb(44, 110, 252)";
 const bannerHeight = 175;
 // accessors
-const getAthlete = (d: Measurement) => d.athlete;
-const getValue = (d: Measurement) => d.value;
+const getAthlete = (d: SummarisedMeasurement) => d.athlete;
+const getValue = (d: SummarisedMeasurement) => d.value;
 
 export default function Runs({ margin = defaultMargin }) {
   const { width, height } = useOutletContext<{
@@ -33,11 +39,29 @@ export default function Runs({ margin = defaultMargin }) {
   }>();
 
   const { Measurement } = useRouteLoaderData("stats") as Data;
-  let params = useParams();
+  let [params] = useSearchParams();
 
-  const data = Measurement.filter(
-    (d: Measurement) => d.type === "RUN" && d.week === params.week
-  ).sort((a, b) => (a.athlete > b.athlete ? 1 : -1));
+  const athletes: {
+    [athlete: string]: SummarisedMeasurement;
+  } = {};
+
+  Measurement.filter(
+    (d: Measurement) => d.type === "RUN" && filterByDate(params, d.week)
+  ).forEach((d) => {
+    if (athletes[d.athlete] === undefined) {
+      athletes[d.athlete] = {
+        athlete: d.athlete,
+        value: 0,
+      };
+    }
+    console.log(athletes[d.athlete].value, d.value);
+    athletes[d.athlete].value += d.value;
+    console.log(athletes[d.athlete].value);
+  });
+
+  const data = Object.entries(athletes)
+    .map(([_athlete, data]) => data)
+    .sort((a, b) => (a.athlete > b.athlete ? 1 : -1));
 
   const topAthlete = [...data].sort((a, b) => (a.value < b.value ? 1 : -1))[0]
     .athlete;
@@ -118,7 +142,7 @@ export default function Runs({ margin = defaultMargin }) {
                     letterSpacing: "-0.05em",
                   }}
                 >
-                  {`${value} km `}
+                  {`${value.toFixed(1)} km `}
                 </Text>
               </Group>
             );

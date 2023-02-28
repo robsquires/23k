@@ -1,8 +1,9 @@
 import {
   useOutletContext,
-  useParams,
   useRouteLoaderData,
+  useSearchParams,
 } from "react-router-dom";
+import { filterByDate } from "../../../lib/filters";
 import "./calories.css";
 
 function Sum(arr: number[]) {
@@ -42,7 +43,7 @@ export default function Calories(props: any) {
   }>();
 
   const data = useRouteLoaderData("stats") as Data;
-  const params = useParams();
+  const [params] = useSearchParams();
 
   const athletes: {
     [key: string]: {
@@ -52,8 +53,7 @@ export default function Calories(props: any) {
   } = {};
 
   data.Measurement.filter(
-    (d: any) =>
-      d.type === "CALORIES" && new Date(d.week) <= new Date(params.week || "")
+    (d: any) => d.type === "CALORIES" && filterByDate(params, d.week)
   ).forEach((d) => {
     if (athletes[d.athlete] === undefined) {
       athletes[d.athlete] = {

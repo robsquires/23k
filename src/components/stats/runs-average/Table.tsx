@@ -2,10 +2,15 @@ import React from "react";
 import { useTable } from "react-table";
 import "./runs-average.css";
 
-type TableData = {
-  athlete: string;
-  change: string;
-}[];
+type WeekData = {
+  [week: string]: { actual: number; average: number };
+};
+type TableData = Array<
+  WeekData & {
+    athlete: string;
+    change: string;
+  }
+>;
 
 //@todo work out how to pass column type
 export function Table({ columns, data }: { columns: any; data: TableData }) {
@@ -35,19 +40,19 @@ export function Table({ columns, data }: { columns: any; data: TableData }) {
             <tr {...row.getRowProps()}>
               {row.cells.map((cell) => {
                 const classes = [];
-
                 if (cell.column.id === "change") {
                   classes.push("change");
                   classes.push(cell.value >= 0 ? "positive" : "negative");
                 } else if (cell.column.id !== "athlete") {
+                  const data = cell.row.original[cell.column.id];
                   classes.push("data");
                   classes.push(
-                    cell.value >= 23
+                    data.actual === 0
+                      ? "zero"
+                      : cell.value >= 23
                       ? "high"
                       : cell.value >= 16
                       ? "med"
-                      : cell.value === undefined
-                      ? "zero"
                       : "low"
                   );
                 }

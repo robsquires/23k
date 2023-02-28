@@ -1,5 +1,5 @@
-import uniq from "lodash.uniq";
-import { useParams, useRouteLoaderData } from "react-router-dom";
+import { useSearchParams, useRouteLoaderData } from "react-router-dom";
+import { filterByDate } from "../../../lib/filters";
 import { Table } from "./Table";
 
 function Sum(arr: number[]) {
@@ -16,12 +16,13 @@ type Data = {
   Measurement: Measurement[];
 };
 
-const athletes: {
-  [key: string]: {
-    x: string;
-    y: number;
+type DataByAthlete = {
+  [athlete: string]: {
+    week: string;
+    average: number;
+    actual: number;
   }[];
-} = {};
+};
 
 export type Props = {
   width: number;
@@ -31,18 +32,35 @@ export type Props = {
 
 const RunsAverage = () => {
   const data = useRouteLoaderData("stats") as Data;
-  const params = useParams();
+  const [params] = useSearchParams();
+  const monthSummary = !!params.get("month");
 
   const runData = data.Measurement.filter(
-    (d) => d.type === "RUN" && new Date(d.week) <= new Date(params.week || "")
+    (d) => d.type === "RUN" && filterByDate(params, d.week)
   );
-  const weeks = uniq(runData.map((d) => d.week)).sort((a, b) => {
-    return new Date(a) < new Date(b) ? 1 : -1;
-  });
 
+  const weeks = [...new Set(runData.map((d) => d.week).values())].sort(
+    (a, b) => {
+      return new Date(a) < new Date(b) ? 1 : -1;
+    }
+  );
+  const athletes = [...new Set(runData.map((d) => d.athlete).values())];
+
+  // pad out with zero weeks
+  weeks.forEach((week) => {
+    athletes.forEach((athlete) => {
+      const measurement = runData.find(
+        (d) => d.week === week && d.athlete === athlete
+      );
+      if (!measurement) {
+        runData.push({ type: "RUN", athlete, week, value: 0 });
+      }
+    });
+  });
+  const dataByAthlete: DataByAthlete = {};
   runData.forEach((d) => {
-    if (athletes[d.athlete] === undefined) {
-      athletes[d.athlete] = [];
+    if (dataByAthlete[d.athlete] === undefined) {
+      dataByAthlete[d.athlete] = [];
     }
     const athlete = d.athlete;
     const thisWeek = new Date(d.week);
@@ -54,7 +72,11 @@ const RunsAverage = () => {
 
     const average = Sum(vals.map((d) => d.value)) / numWeeks;
 
-    athletes[d.athlete].push({ x: d.week, y: average });
+    dataByAthlete[d.athlete].push({
+      week: d.week,
+      average,
+      actual: d.value,
+    });
   });
 
   const tableData: {
@@ -62,19 +84,29 @@ const RunsAverage = () => {
     change: string;
   }[] = [];
 
-  Object.entries(athletes).forEach(([athlete, data]) => {
+  Object.entries(dataByAthlete).forEach(([athlete, data]) => {
     const weekData = data.reduce(
-      (acc, d) => ({ ...acc, [d.x]: d.y.toFixed(1) }),
+      (acc, d) => ({
+        ...acc,
+        [d.week]: { average: d.average.toFixed(1), actual: d.actual },
+      }),
       {}
     );
-    const change = (data[data.length - 1].y - data[data.length - 2].y).toFixed(
-      1
-    );
+    const sortedData = [...data].sort((a, b) => {
+      return new Date(a.week) < new Date(b.week) ? 1 : -1;
+    });
+    console.log(sortedData);
+
+    const start = 0;
+    const end = params.get("month") ? sortedData.length - 1 : 1;
+    const change = (
+      sortedData[start].average - sortedData[end].average
+    ).toFixed(1);
+
     tableData.push({ athlete, change, ...weekData });
   });
-
   tableData.sort((a, b) => (a.athlete > b.athlete ? 1 : -1));
-
+  // debugger;
   return (
     <div className="runs stats">
       <div
@@ -87,17 +119,29 @@ const RunsAverage = () => {
         23k for days
       </div>
       <Table
-        columns={["athlete", "change", ...weeks].map((k) => ({
+        columns={[
+          "athlete",
+          ...(!monthSummary ? ["change"] : []),
+          ...weeks,
+        ].map((k) => ({
           Header:
             k === "athlete" || k === "change"
               ? ""
-              : k === params.week
+              : k === params.get("week")
               ? "This week"
               : new Date(k).toLocaleDateString("en-gb", {
                   month: "short",
                   day: "numeric",
                 }),
-          accessor: k,
+          id: k,
+          accessor: (row: any) => {
+            const showValue = monthSummary ? "actual" : "average";
+            if (row[k][showValue] !== undefined) {
+              return row[k][showValue];
+            } else {
+              return row[k];
+            }
+          },
         }))}
         data={tableData}
       />

@@ -1,17 +1,18 @@
 import { Fragment } from "react";
 import {
   useOutletContext,
-  useParams,
+  useSearchParams,
   useRouteLoaderData,
 } from "react-router-dom";
 import { Axis, LineSeries, XYChart } from "@visx/xychart";
 import { LegendOrdinal } from "@visx/legend";
-import { scaleOrdinal, scaleLinear, scaleBand } from "@visx/scale";
+import { scaleOrdinal } from "@visx/scale";
 import { Text } from "@visx/text";
 
 import ChartBackground from "./ChartBackground";
 import { Labels } from "./Labels";
 import { WeightSummary } from "./WeightSummary";
+import { filterByDate } from "../../../lib/filters";
 
 const backgroundColor = "#f97316";
 const allColors = [
@@ -58,15 +59,14 @@ export default function Weight({ margin = defaultMargin }: Props) {
   const xMax = width - margin.left - margin.right;
 
   const { Measurement } = useRouteLoaderData("stats") as Data;
-  const params = useParams();
+  const [params] = useSearchParams();
 
   const athletes: {
     [athlete: string]: ChartData[];
   } = {};
 
   Measurement.filter(
-    (d) =>
-      d.type === "WEIGHT" && new Date(d.week) <= new Date(params.week || "")
+    (d) => d.type === "WEIGHT" && filterByDate(params, d.week)
   ).forEach((d) => {
     if (athletes[d.athlete] === undefined) {
       athletes[d.athlete] = [];
