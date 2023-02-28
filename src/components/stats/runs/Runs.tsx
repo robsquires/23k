@@ -10,8 +10,14 @@ import {
 } from "react-router-dom";
 import { filterByDate } from "../../../lib/filters";
 
+enum ExerciseType {
+  RUN = "RUN",
+  CYCLE = "CYCLE",
+  SWIM = "SWIM",
+}
+
 type Measurement = {
-  type: string;
+  type: ExerciseType;
   athlete: string;
   value: number;
   week: string;
@@ -26,11 +32,47 @@ type SummarisedMeasurement = {
 };
 
 const defaultMargin = { top: 20, right: 20, bottom: 0, left: 120 };
-const backgroundColor = "rgb(44, 110, 252)";
+
 const bannerHeight = 175;
 // accessors
 const getAthlete = (d: SummarisedMeasurement) => d.athlete;
 const getValue = (d: SummarisedMeasurement) => d.value;
+
+function isExerciseType(value: string): value is ExerciseType {
+  return value in ExerciseType;
+}
+function getExerciseType(
+  params: URLSearchParams,
+  fallback: ExerciseType
+): ExerciseType {
+  const typeValue = (params.get("type") || fallback).toUpperCase();
+  if (isExerciseType(typeValue)) {
+    return ExerciseType[typeValue];
+  }
+  throw new Error("Unknown exercise type");
+}
+
+function getBackgroundColor(exerciseType: ExerciseType) {
+  switch (exerciseType) {
+    case ExerciseType.RUN:
+      return "rgb(41, 191, 18)";
+    case ExerciseType.CYCLE:
+      return "#FFD700";
+    case ExerciseType.SWIM:
+      return "#0099FF";
+  }
+}
+
+function getTitle(exerciseType: ExerciseType) {
+  switch (exerciseType) {
+    case ExerciseType.RUN:
+      return "🏃‍♂️ Run far, die old";
+    case ExerciseType.CYCLE:
+      return "🚴‍♂️ Chapeau!";
+    case ExerciseType.SWIM:
+      return "🏊‍♂️ Filet-O-Fish";
+  }
+}
 
 export default function Runs({ margin = defaultMargin }) {
   const { width, height } = useOutletContext<{
@@ -40,13 +82,16 @@ export default function Runs({ margin = defaultMargin }) {
 
   const { Measurement } = useRouteLoaderData("stats") as Data;
   let [params] = useSearchParams();
+  const exerciseType = getExerciseType(params, ExerciseType.RUN);
+
+  const backgroundColor = getBackgroundColor(exerciseType);
 
   const athletes: {
     [athlete: string]: SummarisedMeasurement;
   } = {};
 
   Measurement.filter(
-    (d: Measurement) => d.type === "RUN" && filterByDate(params, d.week)
+    (d: Measurement) => d.type === exerciseType && filterByDate(params, d.week)
   ).forEach((d) => {
     if (athletes[d.athlete] === undefined) {
       athletes[d.athlete] = {
@@ -54,9 +99,7 @@ export default function Runs({ margin = defaultMargin }) {
         value: 0,
       };
     }
-    console.log(athletes[d.athlete].value, d.value);
     athletes[d.athlete].value += d.value;
-    console.log(athletes[d.athlete].value);
   });
 
   const data = Object.entries(athletes)
@@ -98,7 +141,7 @@ export default function Runs({ margin = defaultMargin }) {
           height: bannerHeight,
         }}
       >
-        Run far, die old
+        {getTitle(exerciseType)}
       </div>
       <svg
         width={width}
@@ -133,16 +176,23 @@ export default function Runs({ margin = defaultMargin }) {
                   opacity={athlete === topAthlete ? "1" : "0.5"}
                 />
                 <Text
-                  y={barY + barHeight / 1.4}
+                  y={barY + barHeight / 2}
                   x={10}
+                  height={barHeight}
                   fill={backgroundColor}
+                  dominantBaseline="central"
                   style={{
-                    fontSize: "2.5rem",
+                    fontSize: "2.5em",
                     fontWeight: "800",
                     letterSpacing: "-0.05em",
+                    backgroundColor: "red",
                   }}
                 >
-                  {`${value.toFixed(1)} km `}
+                  {exerciseType === ExerciseType.SWIM
+                    ? `${new Intl.NumberFormat("en-GB", {
+                        maximumFractionDigits: 0,
+                      }).format(value)} m`
+                    : `${value.toFixed(1)} km`}
                 </Text>
               </Group>
             );

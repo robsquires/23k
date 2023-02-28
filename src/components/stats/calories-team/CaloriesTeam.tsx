@@ -78,6 +78,7 @@ export default function CaloriesTeam({ margin = defaultMargin }) {
     teamData[team].athletes.add(d.athlete);
     teamData[team].value =
       teamData[team].sum / [...teamData[team].athletes.values()].length;
+    console.log(teamData[team]);
   });
 
   const data = Object.entries(teamData)
