@@ -5,7 +5,7 @@ import App from "./App";
 import Stats, { loader } from "./Stats";
 import Calories from "./components/stats/calories/Calories";
 import CaloriesTeam from "./components/stats/calories-team/CaloriesTeam";
-import Runs from "./components/stats/runs/Runs";
+import Basic from "./components/stats/basic/Basic";
 import Weight from "./components/stats/weight/Weight";
 import RunsAverage from "./components/stats/runs-average/RunsAverage";
 import "./index.css";
@@ -30,8 +30,8 @@ const router = createBrowserRouter([
         element: <CaloriesTeam />,
       },
       {
-        path: "runs",
-        element: <Runs />,
+        path: "basic",
+        element: <Basic />,
       },
       {
         path: "runs-average",

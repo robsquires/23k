@@ -74,7 +74,7 @@ function getTitle(exerciseType: ExerciseType) {
   }
 }
 
-export default function Runs({ margin = defaultMargin }) {
+export default function Basic({ margin = defaultMargin }) {
   const { width, height } = useOutletContext<{
     width: number;
     height: number;
