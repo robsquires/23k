@@ -1,21 +1,16 @@
 import { useSearchParams, useRouteLoaderData } from "react-router-dom";
-import { filterByDate } from "../../../lib/filters";
-import { Table, TableRow, WeekData } from "./Table";
+import {
+  filterBeforeWeek,
+  filterByDate,
+  filterByMonth,
+} from "../../../lib/filters";
+import { isWeekData, Table, TableRow, WeekData } from "./Table";
 import round from "lodash.round";
+import { Athletes, Measurement, MeasurementType } from "../../../lib/models";
 
 function Sum(arr: number[]) {
   return arr.reduce((acc, value) => acc + value, 0);
 }
-
-type Measurement = {
-  type: string;
-  athlete: string;
-  value: number;
-  week: string;
-};
-type Data = {
-  Measurement: Measurement[];
-};
 
 type DataByAthlete = {
   [athlete: string]: {
@@ -32,12 +27,15 @@ export type Props = {
 };
 
 const RunsAverage = () => {
-  const data = useRouteLoaderData("stats") as Data;
+  const measurements = useRouteLoaderData("stats") as Measurement[];
   const [params] = useSearchParams();
   const monthSummary = !!params.get("month");
 
-  const runData = data.Measurement.filter(
-    (d) => d.type === "RUN" && filterByDate(params, d.week)
+  const runData = measurements.filter(
+    (d) =>
+      d.type === MeasurementType.RUN &&
+      filterByMonth(params, d.week) &&
+      filterBeforeWeek(params, d.week)
   );
 
   const weeks = [...new Set(runData.map((d) => d.week).values())].sort(
@@ -45,38 +43,36 @@ const RunsAverage = () => {
       return new Date(a) < new Date(b) ? 1 : -1;
     }
   );
-  const athletes = [...new Set(runData.map((d) => d.athlete).values())];
-
   // pad out with zero weeks
   weeks.forEach((week) => {
-    athletes.forEach((athlete) => {
+    Athletes.forEach((athlete) => {
       const measurement = runData.find(
         (d) => d.week === week && d.athlete === athlete
       );
       if (!measurement) {
-        runData.push({ type: "RUN", athlete, week, value: 0 });
+        runData.push({ type: MeasurementType.RUN, athlete, week, value: 0 });
       }
     });
   });
+
   const dataByAthlete: DataByAthlete = {};
-  runData.forEach((d) => {
-    if (dataByAthlete[d.athlete] === undefined) {
-      dataByAthlete[d.athlete] = [];
+  runData.forEach(({ week, athlete, value }) => {
+    if (dataByAthlete[athlete] === undefined) {
+      dataByAthlete[athlete] = [];
     }
-    const athlete = d.athlete;
-    const thisWeek = new Date(d.week);
+    const thisWeek = new Date(week);
     const numWeeks = weeks.filter((week) => thisWeek >= new Date(week)).length;
 
     const vals = runData.filter((d) => {
-      return d.athlete === athlete && thisWeek >= new Date(d.week);
+      return athlete === d.athlete && thisWeek >= new Date(d.week);
     });
 
     const average = round(Sum(vals.map((d) => d.value)) / numWeeks, 1);
 
-    dataByAthlete[d.athlete].push({
-      week: d.week,
+    dataByAthlete[athlete].push({
+      week,
       average,
-      actual: d.value,
+      actual: value,
     });
   });
 
@@ -102,7 +98,6 @@ const RunsAverage = () => {
     tableData.push({ athlete, change, ...weekData });
   });
   tableData.sort((a, b) => (a.athlete > b.athlete ? 1 : -1));
-  // debugger;
   return (
     <div className="runs stats">
       <div
@@ -119,7 +114,7 @@ const RunsAverage = () => {
           "athlete",
           ...(!monthSummary ? ["change"] : []),
           ...weeks,
-        ].map((k) => ({
+        ].map((k: keyof TableRow) => ({
           Header:
             k === "athlete" || k === "change"
               ? ""
@@ -130,12 +125,13 @@ const RunsAverage = () => {
                   day: "numeric",
                 }),
           id: k,
-          accessor: (row: any) => {
-            const showValue = monthSummary ? "actual" : "average";
-            if (row[k][showValue] !== undefined) {
-              return row[k][showValue];
+          accessor: (row: TableRow) => {
+            const displayValue = monthSummary ? "actual" : "average";
+            const col = row[k];
+            if (isWeekData(col)) {
+              return col[displayValue];
             } else {
-              return row[k];
+              return col;
             }
           },
         }))}

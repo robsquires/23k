@@ -9,22 +9,16 @@ import {
   useRouteLoaderData,
 } from "react-router-dom";
 import { filterByDate } from "../../../lib/filters";
+import {
+  Athletes,
+  MeasurementType,
+  Measurement,
+  isExerciseType,
+} from "../../../lib/models";
 
-enum ExerciseType {
-  RUN = "RUN",
-  CYCLE = "CYCLE",
-  SWIM = "SWIM",
+function Sum(arr: number[]) {
+  return arr.reduce((acc, value) => acc + value, 0);
 }
-
-type Measurement = {
-  type: ExerciseType;
-  athlete: string;
-  value: number;
-  week: string;
-};
-type Data = {
-  Measurement: Measurement[];
-};
 
 type SummarisedMeasurement = {
   athlete: string;
@@ -38,38 +32,35 @@ const bannerHeight = 175;
 const getAthlete = (d: SummarisedMeasurement) => d.athlete;
 const getValue = (d: SummarisedMeasurement) => d.value;
 
-function isExerciseType(value: string): value is ExerciseType {
-  return value in ExerciseType;
-}
 function getExerciseType(
   params: URLSearchParams,
-  fallback: ExerciseType
-): ExerciseType {
+  fallback: MeasurementType
+): MeasurementType {
   const typeValue = (params.get("type") || fallback).toUpperCase();
   if (isExerciseType(typeValue)) {
-    return ExerciseType[typeValue];
+    return MeasurementType[typeValue];
   }
   throw new Error("Unknown exercise type");
 }
 
-function getBackgroundColor(exerciseType: ExerciseType) {
+function getBackgroundColor(exerciseType: MeasurementType) {
   switch (exerciseType) {
-    case ExerciseType.RUN:
+    case MeasurementType.RUN:
       return "rgb(41, 191, 18)";
-    case ExerciseType.CYCLE:
+    case MeasurementType.CYCLE:
       return "#FFD700";
-    case ExerciseType.SWIM:
+    case MeasurementType.SWIM:
       return "#0099FF";
   }
 }
 
-function getTitle(exerciseType: ExerciseType) {
+function getTitle(exerciseType: MeasurementType) {
   switch (exerciseType) {
-    case ExerciseType.RUN:
+    case MeasurementType.RUN:
       return "🏃‍♂️ Run far, die old";
-    case ExerciseType.CYCLE:
+    case MeasurementType.CYCLE:
       return "🚴‍♂️ Chapeau!";
-    case ExerciseType.SWIM:
+    case MeasurementType.SWIM:
       return "🏊‍♂️ Filet-O-Fish";
   }
 }
@@ -80,34 +71,24 @@ export default function Basic({ margin = defaultMargin }) {
     height: number;
   }>();
 
-  const { Measurement } = useRouteLoaderData("stats") as Data;
+  const measurements = useRouteLoaderData("stats") as Measurement[];
   let [params] = useSearchParams();
-  const exerciseType = getExerciseType(params, ExerciseType.RUN);
-
+  const exerciseType = getExerciseType(params, MeasurementType.RUN);
   const backgroundColor = getBackgroundColor(exerciseType);
 
-  const athletes: {
-    [athlete: string]: SummarisedMeasurement;
-  } = {};
-
-  Measurement.filter(
+  const filteredMeasurements = measurements.filter(
     (d: Measurement) => d.type === exerciseType && filterByDate(params, d.week)
-  ).forEach((d) => {
-    if (athletes[d.athlete] === undefined) {
-      athletes[d.athlete] = {
-        athlete: d.athlete,
-        value: 0,
-      };
-    }
-    athletes[d.athlete].value += d.value;
-  });
+  );
+  const chartData: SummarisedMeasurement[] = Athletes.map((athlete) => ({
+    athlete,
+    value: Sum(
+      filteredMeasurements
+        .filter((d) => d.athlete === athlete)
+        .map((d) => d.value)
+    ),
+  })).sort((a, b) => (a.value < b.value ? 1 : -1));
 
-  const data = Object.entries(athletes)
-    .map(([_athlete, data]) => data)
-    .sort((a, b) => (a.value < b.value ? 1 : -1));
-
-  const topAthlete = [...data].sort((a, b) => (a.value < b.value ? 1 : -1))[0]
-    .athlete;
+  const topAthlete = chartData[0].athlete;
 
   // bounds
   const xMax = width - margin.left - margin.right;
@@ -116,19 +97,19 @@ export default function Basic({ margin = defaultMargin }) {
   const xScale = scaleLinear<number>({
     range: [xMax, 0],
     round: true,
-    domain: [0, Math.max(...data.map(getValue))],
+    domain: [0, Math.max(...chartData.map(getValue))],
   });
 
   const yScale = scaleBand<string>({
     range: [0, yMax],
     round: true,
-    domain: data.map(getAthlete),
+    domain: chartData.map(getAthlete),
     padding: 0.2,
   });
 
   const AthleteScale = scaleBand({
     range: [0, yMax],
-    domain: data.map(getAthlete),
+    domain: chartData.map(getAthlete),
     padding: 0.2,
   });
 
@@ -158,12 +139,12 @@ export default function Basic({ margin = defaultMargin }) {
           fill={backgroundColor}
         />
         <Group left={margin.left}>
-          {data.map(({ athlete, value }) => {
+          {chartData.map(({ athlete, value }) => {
             const barHeight = yScale.bandwidth();
             const barWidth = xMax - (xScale(value) ?? 0);
             const barY = yScale(athlete) || 0;
             const valueStr =
-              exerciseType === ExerciseType.SWIM
+              exerciseType === MeasurementType.SWIM
                 ? `${new Intl.NumberFormat("en-GB", {
                     maximumFractionDigits: 0,
                   }).format(value)} m`

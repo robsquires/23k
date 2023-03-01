@@ -5,13 +5,9 @@ import { DataContext } from "@visx/xychart";
 const patternId = "xy-chart-pattern";
 
 export default function CustomChartBackground() {
-  const { theme, margin, width, height, innerWidth, innerHeight } =
-    useContext(DataContext);
-
+  const { margin, innerWidth, innerHeight } = useContext(DataContext);
   // early return values not available in context
-  if (width == null || height == null || margin == null || theme == null)
-    return null;
-
+  if (margin == null || innerWidth == null || innerHeight == null) return null;
   return (
     <>
       <PatternLines

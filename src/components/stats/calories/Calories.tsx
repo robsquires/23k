@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 import { filterByDate } from "../../../lib/filters";
 import "./calories.css";
+import { Measurement, Athletes } from "../../../lib/models";
 
 function Sum(arr: number[]) {
   return arr.reduce((acc, value) => acc + value, 0);
@@ -28,49 +29,22 @@ const colors = [
   "#d946ef",
 ];
 
-type Data = {
-  Measurement: {
-    type: string;
-    athlete: string;
-    value: number;
-  }[];
-};
-
-export default function Calories(props: any) {
-  const { width, height } = useOutletContext<{
-    width: number;
-    height: number;
-  }>();
-
-  const data = useRouteLoaderData("stats") as Data;
+export default function Calories() {
+  const measurements = useRouteLoaderData("stats") as Measurement[];
   const [params] = useSearchParams();
 
-  const athletes: {
-    [key: string]: {
-      calories: number[];
-      sum: number;
-    };
-  } = {};
-
-  data.Measurement.filter(
+  const calorieMeasurements = measurements.filter(
     (d: any) => d.type === "CALORIES" && filterByDate(params, d.week)
-  ).forEach((d) => {
-    if (athletes[d.athlete] === undefined) {
-      athletes[d.athlete] = {
-        calories: [],
-        sum: 0,
-      };
-    }
-    athletes[d.athlete].calories.push(d.value);
-    athletes[d.athlete].sum = Sum(athletes[d.athlete].calories);
-  });
+  );
 
-  const flatData = Object.entries(athletes)
-    .map(([athlete, { sum }]) => ({
-      athlete,
-      sum,
-    }))
-    .sort((a, b) => (a.sum < b.sum ? 1 : -1));
+  const data = Athletes.map((athlete) => ({
+    athlete,
+    sum: Sum(
+      calorieMeasurements
+        .filter((d) => d.athlete === athlete)
+        .map((a) => a.value)
+    ),
+  })).sort((a, b) => (a.sum < b.sum ? 1 : -1));
 
   return (
     <div className="stats">
@@ -86,7 +60,7 @@ export default function Calories(props: any) {
       <table>
         <tbody>
           <tr>
-            {flatData.map(({ athlete, sum }, i) => {
+            {data.map(({ athlete, sum }, i) => {
               return (
                 <td
                   key={athlete}
@@ -102,7 +76,7 @@ export default function Calories(props: any) {
             })}
           </tr>
           <tr>
-            {flatData.map(({ athlete }, i) => (
+            {data.map(({ athlete }, i) => (
               <td
                 key={athlete}
                 style={{
@@ -119,11 +93,11 @@ export default function Calories(props: any) {
         className="burgers"
         style={{
           fontSize: `${calcFontSize(
-            calcNumberBurgers(Sum(flatData.map(({ sum }) => sum)))
+            calcNumberBurgers(Sum(data.map(({ sum }) => sum)))
           )}vw`,
         }}
       >
-        {flatData.map(({ athlete, sum }, i) => {
+        {data.map(({ athlete, sum }, i) => {
           return (
             <span
               key={athlete}

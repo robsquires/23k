@@ -15,8 +15,8 @@ export type TableRow = {
   [week: string]: WeekData | string;
 };
 
-function isWeekData(data: WeekData | string): data is WeekData {
-  return !(data instanceof String);
+export function isWeekData(data: WeekData | string): data is WeekData {
+  return data.hasOwnProperty("actual");
 }
 
 //@todo work out how to pass column type
@@ -48,7 +48,6 @@ export function Table({ columns, data }: { columns: any; data: TableRow[] }) {
               {row.cells.map((cell) => {
                 const classes = [];
                 const data = cell.row.original[cell.column.id];
-                console.log(data, isWeekData(data));
                 if (cell.column.id === "change") {
                   classes.push("change");
                   classes.push(cell.value >= 0 ? "positive" : "negative");

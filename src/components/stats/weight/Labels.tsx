@@ -23,6 +23,7 @@ export const Labels = ({
       {entry.data.map((d, i) => {
         const first = i === 0;
         const last = i === entry.data.length - 1;
+        // only render first and last labels
         if (!first && !last) {
           return null;
         }

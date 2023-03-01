@@ -13,6 +13,7 @@ import ChartBackground from "./ChartBackground";
 import { Labels } from "./Labels";
 import { WeightSummary } from "./WeightSummary";
 import { filterByDate } from "../../../lib/filters";
+import { Measurement, MeasurementType } from "../../../lib/models";
 
 const backgroundColor = "#f97316";
 const allColors = [
@@ -24,15 +25,6 @@ const allColors = [
   "#fdba74",
   "#ffedd5",
 ];
-type Measurement = {
-  type: string;
-  athlete: string;
-  value: number;
-  week: string;
-};
-type Data = {
-  Measurement: Measurement[];
-};
 
 type ChartData = {
   x: string;
@@ -58,28 +50,31 @@ export default function Weight({ margin = defaultMargin }: Props) {
   const yMax = height - margin.top - margin.bottom;
   const xMax = width - margin.left - margin.right;
 
-  const { Measurement } = useRouteLoaderData("stats") as Data;
+  const measurements = useRouteLoaderData("stats") as Measurement[];
   const [params] = useSearchParams();
 
   const athletes: {
     [athlete: string]: ChartData[];
   } = {};
 
-  Measurement.filter(
-    (d) => d.type === "WEIGHT" && filterByDate(params, d.week)
-  ).forEach((d) => {
-    if (athletes[d.athlete] === undefined) {
-      athletes[d.athlete] = [];
-    }
-    athletes[d.athlete].push({
-      x: new Date(d.week).toLocaleDateString("en-gb", {
-        month: "short",
-        day: "numeric",
-      }),
-      y: d.value,
+  measurements
+    .filter(
+      (d) => d.type === MeasurementType.WEIGHT && filterByDate(params, d.week)
+    )
+    .forEach(({ athlete, week, value }) => {
+      if (athletes[athlete] === undefined) {
+        athletes[athlete] = [];
+      }
+      athletes[athlete].push({
+        x: new Date(week).toLocaleDateString("en-gb", {
+          month: "short",
+          day: "numeric",
+        }),
+        y: value,
+      });
     });
-  });
 
+  // get list of athletes sorted by latest weight measurement (desc)
   const sortedAthletes = Object.keys(athletes).sort((a, b) =>
     athletes[a][athletes[a].length - 1].y >
     athletes[b][athletes[b].length - 1].y

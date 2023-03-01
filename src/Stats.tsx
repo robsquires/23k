@@ -12,5 +12,6 @@ export default function Stats() {
 }
 
 export async function loader() {
-  return await request(QUERY.ALL_MEASUREMENTS);
+  const data = await request(QUERY.ALL_MEASUREMENTS);
+  return data.Measurement;
 }
