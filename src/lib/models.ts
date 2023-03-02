@@ -1,6 +1,6 @@
 export enum Athlete {
   Adam = "Adam",
-  Edd = "Edd",
+  // Edd = "Edd",
   Paul = "Paul",
   Rich = "Rich",
   Rob = "Rob",

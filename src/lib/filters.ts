@@ -1,3 +1,5 @@
+import { Calendar } from "./data";
+
 export function filterByDate(params: URLSearchParams, week: string) {
   return (
     filterByYear(params, week) &&
@@ -20,12 +22,23 @@ export function filterByYear(params: URLSearchParams, week: string) {
     : true;
 }
 
-export function filterByWeek(params: URLSearchParams, week: string) {
+export function filterByWeek(
+  params: URLSearchParams,
+  week: string,
+  leadingWeeks = 1
+) {
   const param = params.get("week");
-  return param ? week === param : true;
+  if (!param) {
+    return true;
+  }
+  const [start, end] = Calendar.filter(
+    (week, i, arr) => week === param || arr[i + leadingWeeks] === param
+  );
+
+  return new Date(start) < new Date(week) && new Date(week) <= new Date(end);
 }
 
 export function filterBeforeWeek(params: URLSearchParams, week: string) {
   const param = params.get("week");
-  return param ? new Date(param).getTime() >= new Date(week).getTime() : true;
+  return param ? new Date(param) >= new Date(week) : true;
 }

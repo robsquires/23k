@@ -24,7 +24,7 @@ const teams: { [athlete: string]: string } = {
 type TeamData = {
   team: string;
   average: number;
-  athletes: Set<Athlete>;
+  numberAthletes: number;
   sum: number;
 };
 
@@ -54,17 +54,18 @@ export default function CaloriesTeam({ margin = defaultMargin }) {
       if (!teamData[team]) {
         teamData[team] = {
           team,
-          athletes: new Set(),
+          numberAthletes: Object.values(teams).filter((name) => name === team)
+            .length,
           sum: 0,
           average: 0,
         };
       }
       teamData[team].sum += d.value;
-      teamData[team].athletes.add(d.athlete);
       // re-calculate running average each time
       teamData[team].average =
-        teamData[team].sum / [...teamData[team].athletes.values()].length;
+        teamData[team].sum / teamData[team].numberAthletes;
     });
+
   const chartData = Object.values(teamData).sort(descBy("average"));
   const topTeam = chartData[0]?.team;
 

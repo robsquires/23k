@@ -1,29 +1,52 @@
-import { filterByDate, filterBeforeWeek } from "./filters";
+import {
+  filterBeforeWeek,
+  filterByWeek,
+  filterByYear,
+  filterByMonth,
+} from "./filters";
 describe("date filters", () => {
   test("filter by year", () => {
     expect(
-      filterByDate(new URLSearchParams("year=2023"), "2023-01-01")
+      filterByYear(new URLSearchParams("year=2023"), "2023-01-01")
     ).toBeTruthy();
     expect(
-      filterByDate(new URLSearchParams("year=2022"), "2023-01-01")
+      filterByYear(new URLSearchParams("year=2022"), "2023-01-01")
     ).toBeFalsy();
   });
   test("filter by month", () => {
     expect(
-      filterByDate(new URLSearchParams("month=2023-01"), "2023-01-01")
+      filterByMonth(new URLSearchParams("month=2023-01"), "2023-01-01")
     ).toBeTruthy();
     expect(
-      filterByDate(new URLSearchParams("month=2023-02"), "2023-01-01")
+      filterByMonth(new URLSearchParams("month=2023-02"), "2023-01-01")
     ).toBeFalsy();
   });
 
   test("filter by week", () => {
     expect(
-      filterByDate(new URLSearchParams("week=2023-01-01"), "2023-01-01")
+      filterByWeek(new URLSearchParams("week=2023-02-24"), "2023-02-24")
     ).toBeTruthy();
     expect(
-      filterByDate(new URLSearchParams("week=2023-01-02"), "2023-01-01")
+      filterByWeek(new URLSearchParams("week=2023-02-24"), "2023-02-25")
     ).toBeFalsy();
+  });
+
+  test("filter by calendar week", () => {
+    expect(
+      filterByWeek(new URLSearchParams("week=2023-03-03"), "2023-02-28")
+    ).toBeTruthy();
+    expect(
+      filterByWeek(new URLSearchParams("week=2023-03-03"), "2023-02-24")
+    ).toBeFalsy();
+  });
+
+  test("including preceeding weeks in filter", () => {
+    expect(
+      filterByWeek(new URLSearchParams("week=2023-03-03"), "2023-02-28")
+    ).toBeTruthy();
+    expect(
+      filterByWeek(new URLSearchParams("week=2023-03-03"), "2023-02-24", 2)
+    ).toBeTruthy();
   });
 
   test("filterBeforeWeek", () => {

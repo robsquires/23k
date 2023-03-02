@@ -21,7 +21,7 @@ export const WeightSummary = ({ x, colors }: { x: number; colors: any }) => {
         const last = entry.data[entry.data.length - 1];
         const value = round(entry.yAccessor(last) - entry.yAccessor(first), 1);
         const isNegative = value < 0;
-        const y = lookupY(dataKey, entry.data.length - 1) || 0;
+        const y = lookupY(dataKey, "last") || 0;
 
         return (
           <Text

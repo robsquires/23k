@@ -7,13 +7,15 @@ export function useAdjustedY() {
     return () => null;
   }
 
-  return (dataKey: string, xIndex: number) =>
+  return (dataKey: string, column: "first" | "last") =>
     dataRegistry
       .keys()
       .map((dataKey) => {
         const entry = dataRegistry.get(dataKey);
+        const datum =
+          entry.data[column === "first" ? 0 : entry.data.length - 1];
         return {
-          y: yScale(entry.yAccessor(entry.data[xIndex]))?.valueOf() || 0,
+          y: yScale(entry.yAccessor(datum))?.valueOf() || 0,
           dataKey,
         };
       })

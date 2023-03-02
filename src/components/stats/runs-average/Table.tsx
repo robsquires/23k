@@ -16,7 +16,7 @@ export type TableRow = {
 };
 
 export function isWeekData(data: WeekData | string): data is WeekData {
-  return data.hasOwnProperty("actual");
+  return data?.hasOwnProperty("actual");
 }
 
 //@todo work out how to pass column type

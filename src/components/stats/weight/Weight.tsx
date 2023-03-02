@@ -12,7 +12,7 @@ import { Text } from "@visx/text";
 import ChartBackground from "./ChartBackground";
 import { Labels } from "./Labels";
 import { WeightSummary } from "./WeightSummary";
-import { filterByDate } from "../../../lib/filters";
+import { filterByMonth, filterByWeek } from "../../../lib/filters";
 import { Measurement, MeasurementType } from "../../../lib/models";
 
 const backgroundColor = "#f97316";
@@ -59,7 +59,10 @@ export default function Weight({ margin = defaultMargin }: Props) {
 
   measurements
     .filter(
-      (d) => d.type === MeasurementType.WEIGHT && filterByDate(params, d.week)
+      (d) =>
+        d.type === MeasurementType.WEIGHT &&
+        filterByWeek(params, d.week, 2) &&
+        filterByMonth(params, d.week)
     )
     .forEach(({ athlete, week, value }) => {
       if (athletes[athlete] === undefined) {

@@ -1,15 +1,27 @@
 import { useSearchParams, useRouteLoaderData } from "react-router-dom";
-import {
-  filterBeforeWeek,
-  filterByDate,
-  filterByMonth,
-} from "../../../lib/filters";
+import { filterBeforeWeek, filterByMonth } from "../../../lib/filters";
 import { isWeekData, Table, TableRow, WeekData } from "./Table";
 import round from "lodash.round";
-import { Athletes, Measurement, MeasurementType } from "../../../lib/models";
+import {
+  Athlete,
+  Athletes,
+  Measurement,
+  MeasurementType,
+} from "../../../lib/models";
+import { Calendar } from "../../../lib/data";
 
 function Sum(arr: number[]) {
   return arr.reduce((acc, value) => acc + value, 0);
+}
+
+type DisplayOption = "average" | "actual";
+
+export function getDisplayOption(params: URLSearchParams): DisplayOption {
+  const value = params.get("display") || "average";
+  if (value !== "average" && value !== "actual") {
+    throw new Error("Unknown display option");
+  }
+  return value;
 }
 
 type DataByAthlete = {
@@ -29,45 +41,53 @@ export type Props = {
 const RunsAverage = () => {
   const measurements = useRouteLoaderData("stats") as Measurement[];
   const [params] = useSearchParams();
-  const monthSummary = !!params.get("month");
 
-  const runData = measurements.filter(
-    (d) =>
-      d.type === MeasurementType.RUN &&
-      filterByMonth(params, d.week) &&
-      filterBeforeWeek(params, d.week)
-  );
+  const displayOption = getDisplayOption(params);
 
-  const weeks = [...new Set(runData.map((d) => d.week).values())].sort(
-    (a, b) => {
-      return new Date(a) < new Date(b) ? 1 : -1;
-    }
-  );
-  // pad out with zero weeks
-  weeks.forEach((week) => {
-    Athletes.forEach((athlete) => {
-      const measurement = runData.find(
-        (d) => d.week === week && d.athlete === athlete
+  const weeks = Calendar.filter(
+    (week) => new Date(week) <= new Date(params.get("week") || Date.now())
+  ).sort((a, b) => {
+    return new Date(a) > new Date(b) ? 1 : -1;
+  });
+  const thisWeek = weeks[weeks.length - 1];
+
+  let runData = measurements.filter((d) => d.type === MeasurementType.RUN);
+  // merge indivual entries into weeks
+  const padded: Measurement[] = [];
+  Athletes.forEach((athlete) => {
+    weeks.forEach((week, i, arr) => {
+      const prevWeek = arr[i - 1] || 0;
+      const measurements = runData.filter(
+        (d) =>
+          d.athlete === athlete &&
+          new Date(d.week) > new Date(prevWeek) &&
+          new Date(d.week) <= new Date(week)
       );
-      if (!measurement) {
-        runData.push({ type: MeasurementType.RUN, athlete, week, value: 0 });
-      }
+      padded.push({
+        type: MeasurementType.RUN,
+        athlete,
+        week,
+        value: Sum(measurements.map((d) => d.value)),
+      });
     });
   });
 
   const dataByAthlete: DataByAthlete = {};
-  runData.forEach(({ week, athlete, value }) => {
+  padded.forEach(({ week, athlete, value }) => {
     if (dataByAthlete[athlete] === undefined) {
       dataByAthlete[athlete] = [];
     }
     const thisWeek = new Date(week);
-    const numWeeks = weeks.filter((week) => thisWeek >= new Date(week)).length;
+    const numWeeks = weeks.filter(
+      (_week) => thisWeek >= new Date(_week)
+    ).length;
+    const vals = runData
+      .filter((d) => {
+        return athlete === d.athlete && thisWeek >= new Date(d.week);
+      })
+      .map((d) => d.value);
 
-    const vals = runData.filter((d) => {
-      return athlete === d.athlete && thisWeek >= new Date(d.week);
-    });
-
-    const average = round(Sum(vals.map((d) => d.value)) / numWeeks, 1);
+    const average = round(Sum(vals) / numWeeks, 1);
 
     dataByAthlete[athlete].push({
       week,
@@ -75,29 +95,32 @@ const RunsAverage = () => {
       actual: value,
     });
   });
-
   const tableData: TableRow[] = [];
   Object.entries(dataByAthlete).forEach(([athlete, data]) => {
-    const weekData = data.reduce<{ [week: string]: WeekData }>(
+    const weeks = data.filter(({ week }) => {
+      return (
+        new Date(week).getMonth() ===
+        new Date(params.get("month") || week).getMonth()
+      );
+    });
+    const oldest = params.get("month") ? 0 : weeks.length - 2;
+    const recent = weeks.length - 1;
+    const change = (weeks[recent].average - weeks[oldest].average).toFixed(1);
+
+    const weekColumns = weeks.reduce<{ [week: string]: WeekData }>(
       (acc, d) => ({
         ...acc,
         [d.week]: { average: d.average, actual: d.actual },
       }),
       {}
     );
-    const sortedData = [...data].sort((a, b) => {
-      return new Date(a.week) < new Date(b.week) ? 1 : -1;
-    });
-
-    const start = 0;
-    const end = params.get("month") ? sortedData.length - 1 : 1;
-    const change = (
-      sortedData[start].average - sortedData[end].average
-    ).toFixed(1);
-
-    tableData.push({ athlete, change, ...weekData });
+    tableData.push({ athlete, change, ...weekColumns });
   });
+
   tableData.sort((a, b) => (a.athlete > b.athlete ? 1 : -1));
+  const weekColumns = Object.keys(tableData[0])
+    .filter((k) => k !== "athlete" && k !== "change")
+    .sort((a, b) => (new Date(a) < new Date(b) ? 1 : -1));
   return (
     <div className="runs stats">
       <div
@@ -112,13 +135,13 @@ const RunsAverage = () => {
       <Table
         columns={[
           "athlete",
-          ...(!monthSummary ? ["change"] : []),
-          ...weeks,
-        ].map((k: keyof TableRow) => ({
+          ...(displayOption === "average" ? ["change"] : []),
+          ...weekColumns,
+        ].map((k: string) => ({
           Header:
             k === "athlete" || k === "change"
               ? ""
-              : k === params.get("week")
+              : k === thisWeek
               ? "This week"
               : new Date(k).toLocaleDateString("en-gb", {
                   month: "short",
@@ -126,10 +149,9 @@ const RunsAverage = () => {
                 }),
           id: k,
           accessor: (row: TableRow) => {
-            const displayValue = monthSummary ? "actual" : "average";
             const col = row[k];
             if (isWeekData(col)) {
-              return col[displayValue];
+              return col[displayOption];
             } else {
               return col;
             }

@@ -86,7 +86,9 @@ export default function Basic({ margin = defaultMargin }) {
         .filter((d) => d.athlete === athlete)
         .map((d) => d.value)
     ),
-  })).sort((a, b) => (a.value < b.value ? 1 : -1));
+  }))
+    .filter(({ value }) => value > 0)
+    .sort((a, b) => (a.value < b.value ? 1 : -1));
 
   const topAthlete = chartData[0].athlete;
 

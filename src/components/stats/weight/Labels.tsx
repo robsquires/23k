@@ -29,7 +29,7 @@ export const Labels = ({
         }
 
         const x = xScale(entry.xAccessor(d))?.valueOf() || 0;
-        const y = lookupAdjustedY(dataKey, i) || 0;
+        const y = lookupAdjustedY(dataKey, first ? "first" : "last") || 0;
 
         return (
           <Text
