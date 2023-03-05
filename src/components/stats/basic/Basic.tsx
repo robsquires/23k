@@ -57,11 +57,11 @@ function getBackgroundColor(exerciseType: MeasurementType) {
 function getTitle(exerciseType: MeasurementType) {
   switch (exerciseType) {
     case MeasurementType.RUN:
-      return "🏃‍♂️ Run far, die old";
+      return "Run far, die old";
     case MeasurementType.CYCLE:
-      return "🚴‍♂️ Chapeau!";
+      return "Chapeau!";
     case MeasurementType.SWIM:
-      return "🏊‍♂️ Filet-O-Fish";
+      return "Latfest";
   }
 }
 
@@ -124,6 +124,10 @@ export default function Basic({ margin = defaultMargin }) {
           height: bannerHeight,
         }}
       >
+        <img
+          className="emoji"
+          src={`/emojis/${exerciseType.toLocaleLowerCase()}.png`}
+        ></img>
         {getTitle(exerciseType)}
       </div>
       <svg

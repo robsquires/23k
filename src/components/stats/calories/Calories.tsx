@@ -105,7 +105,9 @@ export default function Calories() {
                 backgroundColor: colors[i],
               }}
             >
-              {new Array(calcNumberBurgers(sum)).fill("🍔").join("")}
+              {[...new Array(calcNumberBurgers(sum))].map((_, i) => (
+                <img key={i} className="emoji" src="/emojis/burger.png" />
+              ))}
             </span>
           );
         })}
