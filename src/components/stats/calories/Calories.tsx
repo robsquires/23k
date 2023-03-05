@@ -15,6 +15,31 @@ function calcFontSize(x: number) {
   return x <= 30 ? 8 : 10.9111 - 1.192 * Math.log(3.5911 * x - 140.987);
 }
 
+const sizeMapping = [
+  [4, 350],
+  [5, 280],
+  [14, 200],
+  [16, 175],
+  [30, 140],
+  [56, 100],
+  [120, 70],
+  [200, 56],
+  [252, 50],
+  [385, 40],
+  [520, 35],
+  [800, 28],
+  [1008, 25],
+  [1610, 20],
+  [3300, 14],
+  [6440, 10],
+];
+function getSize(count: number) {
+  return (sizeMapping.find(([maxCount]) => {
+    console.log(count, maxCount);
+    return count < maxCount;
+  }) || ["default", 30])[1];
+}
+
 function calcNumberBurgers(calories: number) {
   return Math.round(calories / 550);
 }
@@ -45,7 +70,8 @@ export default function Calories() {
         .map((a) => a.value)
     ),
   })).sort((a, b) => (a.sum < b.sum ? 1 : -1));
-
+  const totalBurgers = calcNumberBurgers(Sum(data.map(({ sum }) => sum)));
+  const emojiSize = getSize(totalBurgers);
   return (
     <div className="stats">
       <div
@@ -92,23 +118,22 @@ export default function Calories() {
       <div
         className="burgers"
         style={{
-          fontSize: `${calcFontSize(
-            calcNumberBurgers(Sum(data.map(({ sum }) => sum)))
-          )}vw`,
+          lineHeight: 0,
         }}
       >
-        {data.map(({ athlete, sum }, i) => {
-          return (
-            <span
-              key={athlete}
-              style={{
-                backgroundColor: colors[i],
-              }}
-            >
-              {[...new Array(calcNumberBurgers(sum))].map((_, i) => (
-                <img key={i} className="emoji" src="/emojis/burger.png" />
-              ))}
-            </span>
+        {data.map((athleteData, i) => {
+          return [...new Array(calcNumberBurgers(athleteData.sum))].map(
+            (_, k) => (
+              <img
+                style={{
+                  backgroundColor: colors[i],
+                  width: `${emojiSize}px`,
+                  height: `${emojiSize}px`,
+                }}
+                key={k}
+                src="/emojis/burger.png"
+              />
+            )
           );
         })}
       </div>

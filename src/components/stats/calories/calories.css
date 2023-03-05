@@ -35,6 +35,9 @@ td.calories {
 
 .burgers {
   margin-top: 20px;
-  text-align: justify;
-  line-height: normal;
+  width: 100%;
+}
+
+.burgers img {
+  display: inline-block;
 }
