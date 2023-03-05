@@ -61,7 +61,7 @@ function getTitle(exerciseType: MeasurementType) {
     case MeasurementType.CYCLE:
       return "Chapeau!";
     case MeasurementType.SWIM:
-      return "Latfest";
+      return "Latzfest";
   }
 }
 
