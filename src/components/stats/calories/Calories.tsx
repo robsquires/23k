@@ -36,7 +36,7 @@ const sizeMapping = [
 function getSize(count: number) {
   return (sizeMapping.find(([maxCount]) => {
     console.log(count, maxCount);
-    return count < maxCount;
+    return count <= maxCount;
   }) || ["default", 30])[1];
 }
 
