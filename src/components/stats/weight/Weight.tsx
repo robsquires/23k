@@ -147,7 +147,6 @@ export default function Weight({ margin = defaultMargin }: Props) {
               return {
                 y: 25,
                 fill: "white",
-                fontFamily: "Avenir",
                 fontSize: "1.2rem",
                 textAnchor: isFirst ? "start" : isLast ? "end" : "middle",
               };

@@ -1,9 +1,9 @@
-.stats {
-  font-family: "Avenir";
+.stats * {
+  font-family: "Avenir Next";
 }
 
 @font-face {
-  font-family: Avenir;
+  font-family: Avenir Next;
   src: url(https://drpbox.s3.eu-west-1.amazonaws.com/AvenirNext-Bold.ttf);
 }
 
