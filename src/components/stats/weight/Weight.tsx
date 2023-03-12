@@ -129,7 +129,8 @@ export default function Weight({ margin = defaultMargin }: Props) {
           margin={margin}
           xScale={{ type: "band", paddingInner: 1 }}
           yScale={{
-            type: "linear",
+            type: params.get('year') ? "linear": 'pow',
+            exponent: params.get('year') ?  undefined : -3,
             domain: [76, 98],
             range: [yMax, margin.top],
             zero: false,
